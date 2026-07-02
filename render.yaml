@@ -1,8 +1,5 @@
 services:
   - type: web
     name: server
-    runtime: dotnet
-    rootDir: server
-    buildCommand: dotnet publish -c Release -o out
-    startCommand: dotnet out/server.dll
     plan: free
+    env: docker
