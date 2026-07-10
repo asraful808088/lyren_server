@@ -1,6 +1,9 @@
 using System.Text;
 using System.Text.Json;
 
+using System.Globalization;
+using System.Text;
+using System.Text.Json;
 namespace NexTrade.Services;
 
 public class PaymentService
@@ -73,4 +76,51 @@ public class PaymentService
         
         return responseBody;
     }
+
+
+
+public async Task<string> CreateEWalletPaymentAsync(decimal amount)
+{
+    // These values should come from your EWallet settings
+    var apiKey = _configuration["EWallet:ApiKey"];
+    var baseUrl = _configuration["EWallet:BaseUrl"];
+    var shopName = _configuration["EWallet:ShopName"];
+
+    if (string.IsNullOrWhiteSpace(apiKey))
+        throw new Exception("EWallet API Key is missing.");
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new Exception("EWallet BaseUrl is missing.");
+
+    if (string.IsNullOrWhiteSpace(shopName))
+        throw new Exception("EWallet ShopName is missing.");
+
+    var payload = new
+    {
+        type = "payment",
+        platform_name = shopName,
+        base_url = baseUrl,
+        api_key = apiKey,
+        merchant_name = "Lyren Store",
+        total_price = $"${amount.ToString("0.00", CultureInfo.InvariantCulture)}"
+    };
+
+    var json = JsonSerializer.Serialize(payload);
+
+    var response = await _httpClient.PostAsync(
+        "https://chain-hook-backend-evj9.vercel.app/api/users/clients/generate-token/",
+        new StringContent(
+            json,
+            Encoding.UTF8,
+            "application/json")
+    );
+
+    var body = await response.Content.ReadAsStringAsync();
+   
+    Console.WriteLine(body);
+    if (!response.IsSuccessStatusCode)
+        throw new Exception(body);
+
+    return body;
+}
 }
