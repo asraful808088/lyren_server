@@ -84,7 +84,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000")
+            .WithOrigins("https://lyren-server.onrender.com")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
