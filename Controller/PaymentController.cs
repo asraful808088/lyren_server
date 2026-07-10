@@ -14,6 +14,8 @@ public class PaymentController : ControllerBase
         _paymentService = paymentService;
     }
 
+
+
     [HttpPost("process")]
     public async Task<IActionResult> ProcessPayment([FromBody] PaymentRequest request)
     {
@@ -36,13 +38,42 @@ public class PaymentController : ControllerBase
             });
         }
     }
+
+
+
+    [HttpPost("ewallet")]
+    public async Task<IActionResult> EWalletPayment([FromBody] EWalletPaymentRequest request)
+    {
+        try
+        {
+            var result = await _paymentService.CreateEWalletPaymentAsync(request.Amount);
+
+            return Content(result, "application/json");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = ex.Message
+            });
+        }
+    }
 }
 
-// Simple request model
+
+
 public class PaymentRequest
 {
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public string Platform { get; set; } = "nextrade";
+}
+
+
+
+public class EWalletPaymentRequest
+{
+    public decimal Amount { get; set; }
 }
